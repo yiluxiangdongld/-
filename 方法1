@@ -1,0 +1,29 @@
+用向量计算各轴偏转的角度，pitch俯仰角，yaw偏航角，roll滚动角
+	Mat Z_unit_vector(3, 1, CV_64FC1, Scalar::all(0));
+	Mat Y_unit_vector(3, 1, CV_64FC1, Scalar::all(0));
+	Mat X_unit_vector(3, 1, CV_64FC1, Scalar::all(0));
+	Z_unit_vector.at<double>(2, 0) = 1;//Z轴的单位向量
+	Y_unit_vector.at<double>(1, 0) = 1;//Y轴的单位向量
+	X_unit_vector.at<double>(0, 0) = 1;//X轴的单位向量
+	Mat angle_vector(3, 1, CV_64FC1, Scalar::all(0));
+	vector<Point3f> angle;
+	for (int i = 0; i < blue_objectcenter.size(); i++)
+	{
+		Point3f temp_angle;
+		angle_vector.at<double>(0, 0) = red_objectcenter[i].x - blue_objectcenter[i].x;
+		angle_vector.at<double>(1, 0) = red_objectcenter[i].y - blue_objectcenter[i].y;
+		angle_vector.at<double>(2, 0) = red_objectcenter[i].z - blue_objectcenter[i].z;
+		double pitch = 90 - acos(angle_vector.dot(Z_unit_vector) / sqrt(angle_vector.at<double>(0, 0)*angle_vector.at<double>(0, 0) + angle_vector.at<double>(1, 0)*angle_vector.at<double>(1, 0)+ angle_vector.at<double>(2, 0)*angle_vector.at<double>(2, 0))) * 180 / 3.14;
+		angle_vector.at<double>(2, 0) = 0;
+		//double yaw = acos(angle_vector.dot(Y_unit_vector) / sqrt(angle_vector.at<double>(0, 0)*angle_vector.at<double>(0, 0) + angle_vector.at<double>(1, 0)*angle_vector.at<double>(1, 0))) * 180 / 3.14;
+		double yaw = 90-acos(angle_vector.dot(X_unit_vector) / sqrt(angle_vector.at<double>(0, 0)*angle_vector.at<double>(0, 0) + angle_vector.at<double>(1, 0)*angle_vector.at<double>(1, 0))) * 180 / 3.14;
+		angle_vector.at<double>(1, 0) = 0;
+		angle_vector.at<double>(0, 0) = yellow_objectcenter[i].x - green_objectcenter[i].x;
+		angle_vector.at<double>(2, 0) = yellow_objectcenter[i].z - green_objectcenter[i].z;
+		double roll = -atan2(angle_vector.at<double>(2, 0), angle_vector.at<double>(0, 0)) * 180 / 3.14;
+		temp_angle.x = pitch;
+		temp_angle.y = yaw;
+		temp_angle.z = roll;
+		angle.push_back(temp_angle);
+	}
+	cout << angle << endl;
